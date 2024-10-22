@@ -1,5 +1,6 @@
 import envoy
 import gleam/dynamic
+import gleam/io
 import gleam/list
 import gleam/pgo
 import gleam/result
@@ -30,16 +31,17 @@ fn create_db(db: pgo.Connection) -> Result(_, pgo.QueryError) {
 
 pub fn find_did_from_user(username: String) -> Result(String, Nil) {
   let assert Ok(db) = open_db_connection()
-  let query =
-    "
-  SELECT did_string
-  FROM users
-  WHERE user_string = $1
-  ORDER BY username
+  let query = "
+  SELECT did_string, user_string
+  FROM public.users
+  WHERE user_string = '" <> username <> "'
+  ORDER BY user_string
   LIMIT 1;
   "
-  let assert Ok(response) =
-    pgo.execute(query, db, [pgo.text(username)], dynamic.string)
+
+  let return_type = dynamic.element(0, dynamic.string)
+
+  let assert Ok(response) = pgo.execute(query, db, [], return_type)
 
   response.rows
   |> list.first
