@@ -1,4 +1,5 @@
 import db/postgres
+import func/env
 import gleam/bytes_builder
 import gleam/erlang/process
 import gleam/http/request.{type Request}
@@ -9,6 +10,7 @@ import gleam/string
 import mist.{type Connection, type ResponseData}
 
 pub fn main() {
+  env.env_config()
   let _db = postgres.setup_db()
 
   let not_found =
