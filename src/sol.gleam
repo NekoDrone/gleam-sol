@@ -23,7 +23,7 @@ pub fn main() {
         ["echo"] -> echo_body(req)
         ["hello"] -> hello_sol(req)
         ["get_uri"] -> get_uri(req)
-        [".well-known/atproto-did"] -> get_atproto_did(req)
+        [".well-known", "atproto-did"] -> get_atproto_did(req)
         _ -> not_found
       }
     }
@@ -82,11 +82,13 @@ fn get_atproto_did(request: Request(Connection)) -> Response(ResponseData) {
 
   case did {
     "" ->
-      response.new(404)
-      |> response.set_body(mist.Bytes(bytes_builder.new()))
+      response.new(200)
+      |> response.set_body(mist.Bytes(bytes_builder.from_string(username)))
     _ ->
       response.new(200)
-      |> response.set_body(mist.Bytes(bytes_builder.from_string(did)))
+      |> response.set_body(
+        mist.Bytes(bytes_builder.from_string("did=did:plc:" <> did)),
+      )
       |> response.set_header("content-type", "text/plain")
   }
 }
