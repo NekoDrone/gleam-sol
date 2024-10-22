@@ -1,6 +1,5 @@
 import envoy
 import gleam/dynamic
-import gleam/io
 import gleam/list
 import gleam/pgo
 import gleam/result
