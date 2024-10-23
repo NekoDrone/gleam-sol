@@ -45,7 +45,6 @@ fn cors() {
   cors.new()
   |> cors.allow_origin("http://localhost:3000")
   |> cors.allow_origin("http://vercel.app")
-  |> cors.allow_all_origins()
   |> cors.allow_method(http.Get)
   |> cors.allow_method(http.Post)
 }
