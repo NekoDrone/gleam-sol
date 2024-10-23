@@ -1,4 +1,5 @@
 import db/postgres
+import envoy
 import func/env
 import func/json_helper
 import gleam/bit_array
@@ -25,6 +26,7 @@ pub fn main() {
       case request.path_segments(req) {
         [".well-known", "atproto-did"] -> get_atproto_did(req, db)
         ["add_user"] -> add_user(req, db)
+        ["verify_password"] -> verify_password(req)
         _ -> not_found
       }
     }
@@ -78,6 +80,36 @@ fn add_user(
       }
       Error(_) -> {
         response.new(400)
+        |> response.set_body(mist.Bytes(bytes_builder.new()))
+      }
+    }
+  })
+  |> result.lazy_unwrap(fn() {
+    response.new(400)
+    |> response.set_body(mist.Bytes(bytes_builder.new()))
+  })
+}
+
+fn verify_password(request: Request(Connection)) -> Response(ResponseData) {
+  mist.read_body(request, 1024 * 1024 * 10)
+  |> result.map(fn(req) {
+    let password_from_req =
+      json_helper.password_from_json(
+        bit_array.to_string(req.body)
+        |> result.unwrap(""),
+      )
+    let password_from_env =
+      envoy.get("VERIFICATION_PASSWORD")
+      |> result.unwrap("")
+    case
+      password_from_env != "" && password_from_env == password_from_req.password
+    {
+      True -> {
+        response.new(200)
+        |> response.set_body(mist.Bytes(bytes_builder.new()))
+      }
+      False -> {
+        response.new(401)
         |> response.set_body(mist.Bytes(bytes_builder.new()))
       }
     }
