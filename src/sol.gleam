@@ -1,3 +1,4 @@
+import cors_builder as cors
 import db/postgres
 import envoy
 import func/env
@@ -5,6 +6,7 @@ import func/json_helper
 import gleam/bit_array
 import gleam/bytes_builder
 import gleam/erlang/process
+import gleam/http
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
 import gleam/list
@@ -23,6 +25,7 @@ pub fn main() {
 
   let assert Ok(_) =
     fn(req: Request(Connection)) -> Response(ResponseData) {
+      use req <- cors.mist_middleware(req, cors())
       case request.path_segments(req) {
         [".well-known", "atproto-did"] -> get_atproto_did(req, db)
         ["add_user"] -> add_user(req, db)
@@ -36,6 +39,14 @@ pub fn main() {
     |> mist.start_http
 
   process.sleep_forever()
+}
+
+fn cors() {
+  cors.new()
+  |> cors.allow_origin("http://localhost:3000")
+  |> cors.allow_origin("http://vercel.app")
+  |> cors.allow_method(http.Get)
+  |> cors.allow_method(http.Post)
 }
 
 fn get_atproto_did(
