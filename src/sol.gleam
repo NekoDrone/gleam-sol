@@ -1,5 +1,7 @@
 import db/postgres
 import func/env
+import func/json_helper
+import gleam/bit_array
 import gleam/bytes_builder
 import gleam/erlang/process
 import gleam/http/request.{type Request}
@@ -21,6 +23,7 @@ pub fn main() {
     fn(req: Request(Connection)) -> Response(ResponseData) {
       case request.path_segments(req) {
         [".well-known", "atproto-did"] -> get_atproto_did(req)
+        ["add_user"] -> add_user(req)
         _ -> not_found
       }
     }
@@ -51,4 +54,20 @@ fn get_atproto_did(request: Request(Connection)) -> Response(ResponseData) {
       )
       |> response.set_header("content-type", "text/plain")
   }
+}
+
+fn add_user(request: Request(Connection)) -> Response(ResponseData) {
+  mist.read_body(request, 1024 * 1024 * 10)
+  |> result.map(fn(req) {
+    let user_info =
+      json_helper.user_info_from_json(
+        bit_array.to_string(req.body) |> result.unwrap(""),
+      )
+    response.new(200)
+    |> response.set_body(mist.Bytes(bytes_builder.new()))
+  })
+  |> result.lazy_unwrap(fn() {
+    response.new(400)
+    |> response.set_body(mist.Bytes(bytes_builder.new()))
+  })
 }
