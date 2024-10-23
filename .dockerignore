@@ -5,3 +5,4 @@ build
 **\erl_crash.dump
 **\.env
 fly.toml
+**\src\client\
