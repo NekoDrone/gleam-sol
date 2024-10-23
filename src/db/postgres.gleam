@@ -1,4 +1,5 @@
 import envoy
+import func/json_helper
 import gleam/dynamic
 import gleam/list
 import gleam/pgo
@@ -28,8 +29,10 @@ fn create_db(db: pgo.Connection) -> Result(_, pgo.QueryError) {
   pgo.execute(query, db, [], dynamic.dynamic)
 }
 
-pub fn find_did_from_user(username: String) -> Result(String, Nil) {
-  let assert Ok(db) = open_db_connection()
+pub fn find_did_from_user(
+  username: String,
+  db: pgo.Connection,
+) -> Result(String, Nil) {
   let query = "
   SELECT did_string, user_string
   FROM public.users
@@ -44,4 +47,16 @@ pub fn find_did_from_user(username: String) -> Result(String, Nil) {
 
   response.rows
   |> list.first
+}
+
+pub fn add_user_to_db(
+  user_info: json_helper.AddUserInfo,
+  db: pgo.Connection,
+) -> Result(_, pgo.QueryError) {
+  let query = "
+  INSERT INTO users (user_string, did_string)
+  VALUES('" <> user_info.username <> "', '" <> user_info.did_string <> "')
+  "
+
+  pgo.execute(query, db, [], dynamic.dynamic)
 }
