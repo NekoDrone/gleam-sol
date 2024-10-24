@@ -44,8 +44,8 @@ pub fn main() {
 fn cors() {
   cors.new()
   |> cors.allow_origin("http://localhost:3000")
-  |> cors.allow_origin("http://tgirl.gay")
-  |> cors.allow_origin("http://gimmme.tgirl.gay")
+  |> cors.allow_origin("https://tgirl.gay")
+  |> cors.allow_origin("https://gimmme.tgirl.gay")
   |> cors.allow_header("content-type")
   |> cors.allow_header("origin")
   |> cors.allow_header("")
