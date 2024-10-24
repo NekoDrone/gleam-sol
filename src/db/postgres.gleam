@@ -54,7 +54,7 @@ pub fn add_user_to_db(
   db: pgo.Connection,
 ) -> Result(_, pgo.QueryError) {
   let query = "
-  INSERT INTO users (user_string, did_string)
+  UPSERT INTO users (user_string, did_string)
   VALUES('" <> user_info.username <> "', '" <> user_info.did_string <> "')
   "
 
