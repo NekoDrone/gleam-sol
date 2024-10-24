@@ -72,7 +72,7 @@ fn get_atproto_did(
     _ ->
       response.new(200)
       |> response.set_body(
-        mist.Bytes(bytes_builder.from_string("did=did:plc:" <> did)),
+        mist.Bytes(bytes_builder.from_string("did:plc:" <> did)),
       )
       |> response.set_header("content-type", "text/plain")
   }
