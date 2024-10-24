@@ -54,8 +54,11 @@ pub fn add_user_to_db(
   db: pgo.Connection,
 ) -> Result(_, pgo.QueryError) {
   let query = "
-  UPSERT INTO users (user_string, did_string)
+  INSERT INTO users (user_string, did_string)
   VALUES('" <> user_info.username <> "', '" <> user_info.did_string <> "')
+  ON CONFLICT (did_string)
+  DO UPDATE SET
+    user_string = EXCLUDED.user_string
   "
 
   pgo.execute(query, db, [], dynamic.dynamic)
