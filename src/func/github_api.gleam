@@ -2,7 +2,6 @@ import envoy
 import gleam/dynamic
 import gleam/http/request
 import gleam/httpc
-import gleam/io
 import gleam/json
 import gleam/list
 import gleam/result
@@ -58,13 +57,9 @@ pub fn fetch_latest_commit() -> CommitData {
     envoy.get("GITHUB_API_KEY")
     |> result.unwrap("")
 
-  io.debug("Github API Key: " <> github_api_key)
-
   let frontend_repo_path =
-    envoy.get("FRONTEND_PROJECT_REPO_URL")
+    envoy.get("FRONTEND_REPO_PATH")
     |> result.unwrap("")
-
-  io.debug("Frontend Repo Path: " <> frontend_repo_path)
 
   let assert Ok(base_req) =
     request.to(
@@ -77,11 +72,7 @@ pub fn fetch_latest_commit() -> CommitData {
     request.set_header(base_req, "accept", "application/vnd.github+json")
     |> request.set_header("Authorization", "Bearer " <> github_api_key)
 
-  io.debug(req)
-
   let assert Ok(resp) = httpc.send(req)
-
-  io.debug(resp)
 
   let assert Ok(api_response) = resp.body |> json.decode(api_response_decoder)
 
