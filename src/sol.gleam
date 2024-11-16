@@ -1,3 +1,4 @@
+import client/github_api
 import cors_builder as cors
 import db/postgres
 import envoy
@@ -9,6 +10,7 @@ import gleam/erlang/process
 import gleam/http
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
+import gleam/json
 import gleam/list
 import gleam/pgo
 import gleam/result
@@ -30,6 +32,7 @@ pub fn main() {
         [".well-known", "atproto-did"] -> get_atproto_did(req, db)
         ["add_user"] -> add_user(req, db)
         ["verify_password"] -> verify_password(req)
+        ["last_updated"] -> last_updated()
         _ -> not_found
       }
     }
@@ -132,4 +135,17 @@ fn verify_password(request: Request(Connection)) -> Response(ResponseData) {
     response.new(400)
     |> response.set_body(mist.Bytes(bytes_builder.new()))
   })
+}
+
+fn last_updated() -> Response(ResponseData) {
+  let latest_commit_data = github_api.fetch_latest_commit()
+
+  let json_data =
+    json.object([#("updated", json.string(latest_commit_data.author.date))])
+
+  response.new(200)
+  |> response.set_body(
+    mist.Bytes(bytes_builder.from_string(json.to_string(json_data))),
+  )
+  |> response.set_header("content-type", "application/json")
 }
