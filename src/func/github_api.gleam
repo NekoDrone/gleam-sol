@@ -2,6 +2,7 @@ import envoy
 import gleam/dynamic
 import gleam/http/request
 import gleam/httpc
+import gleam/io
 import gleam/json
 import gleam/list
 import gleam/result
@@ -73,6 +74,8 @@ pub fn fetch_latest_commit() -> CommitData {
     |> request.set_header("Authorization", "Bearer " <> github_api_key)
 
   let assert Ok(resp) = httpc.send(req)
+
+  io.debug(resp)
 
   let assert Ok(api_response) = resp.body |> json.decode(api_response_decoder)
 
