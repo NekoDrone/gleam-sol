@@ -58,9 +58,13 @@ pub fn fetch_latest_commit() -> CommitData {
     envoy.get("GITHUB_API_KEY")
     |> result.unwrap("")
 
+  io.debug("Github API Key: " <> github_api_key)
+
   let frontend_repo_path =
     envoy.get("FRONTEND_PROJECT_REPO_URL")
     |> result.unwrap("")
+
+  io.debug("Frontend Repo Path: " <> frontend_repo_path)
 
   let assert Ok(base_req) =
     request.to(
@@ -72,6 +76,8 @@ pub fn fetch_latest_commit() -> CommitData {
   let req =
     request.set_header(base_req, "accept", "application/vnd.github+json")
     |> request.set_header("Authorization", "Bearer " <> github_api_key)
+
+  io.debug(req)
 
   let assert Ok(resp) = httpc.send(req)
 
