@@ -1,8 +1,8 @@
-import client/github_api
 import cors_builder as cors
 import db/postgres
 import envoy
 import func/env
+import func/github_api
 import func/json_helper
 import gleam/bit_array
 import gleam/bytes_builder
