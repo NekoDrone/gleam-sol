@@ -10,6 +10,7 @@ import gleam/erlang/process
 import gleam/http
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
+import gleam/io
 import gleam/json
 import gleam/list
 import gleam/pgo
@@ -33,6 +34,7 @@ pub fn main() {
         ["add_user"] -> add_user(req, db)
         ["verify_password"] -> verify_password(req)
         ["last_updated"] -> last_updated()
+        [] -> redirect_to_profile(req)
         _ -> not_found
       }
     }
@@ -148,4 +150,16 @@ fn last_updated() -> Response(ResponseData) {
     mist.Bytes(bytes_builder.from_string(json.to_string(json_data))),
   )
   |> response.set_header("content-type", "application/json")
+}
+
+fn redirect_to_profile(request: Request(Connection)) -> Response(ResponseData) {
+  let target_url = "https://bsky.app/profile/" <> request.host
+
+  response.new(302)
+  |> response.prepend_header("location", target_url)
+  |> response.set_body(
+    mist.Bytes(bytes_builder.from_string(
+      "You are being redirected to " <> target_url,
+    )),
+  )
 }
